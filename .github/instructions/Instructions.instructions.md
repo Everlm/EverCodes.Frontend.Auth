@@ -1,0 +1,12 @@
+- El código fuente debe estar en inglés siguiendo las convenciones de Angular (clases, métodos, variables, etc.).  
+- Generar siempre código en **Angular 20 + TypeScript**.  
+- Usar **componentes standalone** y servicios bien estructurados.  
+- Mantener **código limpio, claro y entendible**.  
+- Seguir la **guía de estilo Angular**.  
+- Usar **RxJS** para flujos reactivos, evitando `Promise` salvo necesidad.  
+- En templates, preferir **`async pipe`** en lugar de suscripciones manuales.  
+- Evitar `any`, usar **tipado estricto** con interfaces y types.  
+- Mantener funciones y componentes **pequeños y con una sola responsabilidad**.  
+- Usar **formularios reactivos** con `FormBuilder` y validaciones claras.  
+- Garantizar **desuscripción** con `takeUntil` o `async pipe` para evitar memory leaks.  
+- Incluir **tests unitarios** y aplicar principios **SOLID y Clean Code**.  

@@ -1,0 +1,60 @@
+trigger:
+  branches:
+    include:
+      - develop
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: Github
+  - name: GITHUB_REPO
+    value: "Everlm/EverCodes.Frontend.Auth"
+  - name: GITHUB_BRANCH
+    value: "main"
+  - name: COMMIT_MESSAGE
+    value: "Sync from Azure DevOps develop"
+
+steps:
+  - checkout: self
+    persistCredentials: true
+
+  - script: |
+      set -e
+
+      echo "🧩 Configurando Git..."
+      git config --global user.name "AzureDevOps Sync Bot"
+      git config --global user.email "devops-sync@no-reply.com"
+
+      echo "🧹 Eliminando carpeta temporal anterior (si existe)..."
+      rm -rf github-repo
+
+      echo "🔁 Clonando repo de GitHub..."
+      git clone https://$(GITHUB_TOKEN)@github.com/${GITHUB_REPO}.git github-repo
+
+      echo "📦 Cambiando a la rama destino: ${GITHUB_BRANCH}"
+      cd github-repo
+      git fetch origin ${GITHUB_BRANCH} || true
+      git checkout ${GITHUB_BRANCH} || git checkout -b ${GITHUB_BRANCH}
+      cd ..
+
+      echo "📁 Copiando archivos desde el repo de Azure DevOps hacia el repo GitHub..."
+      rsync -av --delete \
+        --exclude='.git' \
+        --exclude='github-repo' \
+        --exclude='.azure-pipelines' \
+        ./ github-repo/
+
+      echo "🧠 Revisando si hay cambios..."
+      cd github-repo
+      if [ -n "$(git status --porcelain)" ]; then
+        git add -A
+        git commit -m "${COMMIT_MESSAGE}"
+        echo "🚀 Enviando cambios a GitHub..."
+        git push origin ${GITHUB_BRANCH}
+      else
+        echo "✅ No hay cambios para sincronizar."
+      fi
+    displayName: "Sync Azure DevOps → GitHub"
+    env:
+      GITHUB_TOKEN: $(GITHUB_TOKEN)
